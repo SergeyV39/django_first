@@ -1,5 +1,7 @@
 from django import forms
 from .models import News
+import re
+from django.core.exceptions import ValidationError
 
 
 class NewsForm(forms.ModelForm):
@@ -13,14 +15,9 @@ class NewsForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-control'})
 
         }
-        # title = forms.CharField(max_length=150, label='Заголовок новости', help_text='Введите название для новости',
-        #                         widget=forms.TextInput(attrs={'class': 'form-control'}))
-        # content = forms.CharField(label='Текст новости', initial='Введите текст...', required=False,
-        #                           widget=forms.Textarea(attrs={'class': 'form-control'}))
-        # photo = forms.ImageField(label='', required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
-        #
-        # is_published = forms.BooleanField(label='Опубликовать сразу?', initial=True)
-        #
-        # category = forms.ModelChoiceField(empty_label='Выберите категорию...', label='Категория',
-        #                                   queryset=Category.objects.all(),
-        #                                   widget=forms.Select(attrs={'class': 'form-control'}))
+
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if re.match(r'\d', title):
+            raise ValidationError('Назавание не должно начинаться с цифры')
+        return title
